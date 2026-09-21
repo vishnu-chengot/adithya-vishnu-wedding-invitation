@@ -10,50 +10,37 @@ export type RsvpSubmission = {
 }
 
 /**
- * Apps Script web app URL. Set VITE_RSVP_ENDPOINT in .env.local (and in the
- * host's environment for the deployed site) — see the project README.
+ * Replies go to our own origin, never straight to Google.
+ *
+ * The Apps Script address lives in RSVP_ENDPOINT on the server — no VITE_
+ * prefix, so it is never compiled into the browser bundle. All the browser
+ * knows is this path.
  */
-const ENDPOINT = import.meta.env.VITE_RSVP_ENDPOINT as string | undefined
+const ENDPOINT = '/api/rsvp'
 
-if (import.meta.env.DEV && !ENDPOINT) {
-  console.warn(
-    '[RSVP] VITE_RSVP_ENDPOINT is not set, so replies will not reach the Google Sheet.\n' +
-      'Create a .env.local file with your Apps Script /exec URL and restart the dev server.\n' +
-      'Full steps: README → "RSVP → Google Sheet".',
-  )
-}
-
+/** The server has no RSVP_ENDPOINT configured, so nothing was recorded. */
 export class RsvpNotConfiguredError extends Error {
   constructor() {
-    super('VITE_RSVP_ENDPOINT is not set, so the reply was not recorded.')
+    super('RSVP_ENDPOINT is not set on the server, so the reply was not recorded.')
     this.name = 'RsvpNotConfiguredError'
   }
 }
 
-/**
- * Appends one reply to the Google Sheet.
- *
- * The body goes out as text/plain on purpose: that keeps it a "simple" request,
- * so the browser sends no OPTIONS preflight — Apps Script cannot answer one.
- * Apps Script parses the body itself, so the content type costs us nothing.
- */
 export async function sendRsvpToSheet(submission: RsvpSubmission): Promise<void> {
-  if (!ENDPOINT) throw new RsvpNotConfiguredError()
-
+  // Same-origin, so a JSON content type costs no preflight.
   const response = await fetch(ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(submission),
-    redirect: 'follow',
   })
 
-  if (!response.ok) {
-    throw new Error(`The RSVP sheet returned ${response.status}.`)
-  }
+  const result = (await response.json().catch(() => null)) as
+    | { ok?: boolean; message?: string; code?: string }
+    | null
 
-  // Apps Script always answers 200; the payload says whether the row was written.
-  const result = (await response.json().catch(() => null)) as { ok?: boolean; message?: string } | null
-  if (result && result.ok === false) {
-    throw new Error(result.message || 'The RSVP sheet rejected the reply.')
+  if (result?.code === 'not_configured') throw new RsvpNotConfiguredError()
+
+  if (!response.ok || result?.ok === false) {
+    throw new Error(result?.message || `The RSVP endpoint returned ${response.status}.`)
   }
 }

@@ -71,7 +71,7 @@ export function RSVPSection() {
     } catch (error) {
       if (error instanceof RsvpNotConfiguredError) {
         console.error(
-          '[RSVP] VITE_RSVP_ENDPOINT is not set. This reply was NOT saved:',
+          '[RSVP] RSVP_ENDPOINT is not set on the server. This reply was NOT saved:',
           submission,
         )
         if (import.meta.env.DEV) {
@@ -79,7 +79,7 @@ export function RSVPSection() {
           // exactly like success and hides the fact that nothing was stored.
           setStatus('error')
           setProblem(
-            'Setup needed: VITE_RSVP_ENDPOINT is not set, so this reply was not saved. See README → RSVP → Google Sheet.',
+            'Setup needed: RSVP_ENDPOINT is not set, so this reply was not saved. See README → RSVP → Google Sheet.',
           )
           return
         }

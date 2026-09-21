@@ -61,12 +61,14 @@ form still thanks the guest, but logs an error to the browser console.
    URL in:
 
    ```
-   VITE_RSVP_ENDPOINT=https://script.google.com/macros/s/AKfy.../exec
+   RSVP_ENDPOINT=https://script.google.com/macros/s/AKfy.../exec
    ```
 
-   Restart `npm run dev`. For the deployed site, set the same variable in your
-   host's environment settings (Netlify, Vercel, Cloudflare Pages all have a
-   place for this) and rebuild.
+   Note there is **no `VITE_` prefix** — that is deliberate, see *Why the
+   browser never sees this URL* below. Restart `npm run dev`.
+
+   For the deployed site, add the same `RSVP_ENDPOINT` variable in **Vercel →
+   Settings → Environment Variables** and redeploy.
 
 5. **Check it.** Open the `/exec` URL in a browser — it should answer
    `{"ok":true,"message":"RSVP endpoint is running"}`. Then send a test reply
@@ -81,11 +83,32 @@ Manage deployments → edit → Version: New version**. Creating a *new deployme
 instead gives you a different URL, which you would then have to update in
 `.env.local`.
 
-**Worth knowing:** `VITE_` variables are baked into the public JavaScript
-bundle, so the endpoint URL is visible to anyone who views source. The script
-only ever appends rows and reads nothing back, but a determined person could
-post junk rows. For a family wedding that is a fair trade; if it matters, put a
-Cloudflare Worker or similar in front of it.
+### Why the browser never sees this URL
+
+Anything named `VITE_*` is compiled into the JavaScript that ships to guests —
+readable by anyone who views source. `RSVP_ENDPOINT` has no prefix, so it is
+only ever read on the server:
+
+- **In production** by `api/rsvp.ts`, a Vercel Edge Function.
+- **In development** by a matching endpoint in `vite.config.ts`, so
+  `npm run dev` behaves exactly like the deployed site.
+
+Both share the forwarding logic in `api/_forward.ts` (the leading underscore
+keeps Vercel from publishing it as its own route). The browser only ever posts
+to `/api/rsvp` on your own domain.
+
+Verified on the built output — no Google address reaches the bundle:
+
+```
+script.google.com matches : 0
+macros/s/ tokens          : 0
+```
+
+**What this does and does not buy you.** The Apps Script address is genuinely
+hidden. But `/api/rsvp` is itself public and unauthenticated — anyone who finds
+it can still post rows. What you gain is that the Google endpoint is no longer
+discoverable, and you now have a server-side place to add origin checks or rate
+limiting if you ever need them.
 
 ### Using something else instead
 
@@ -135,11 +158,14 @@ crawlers do not run JavaScript, so that tag can only be filled in at build time
 ## Structure
 
 ```
+api/
+  rsvp.ts                      Vercel Edge Function guests post replies to
+  _forward.ts                  forwarding logic, shared with the dev server
 google-apps-script/Code.gs     the RSVP collector to paste into Apps Script
 src/
   data/weddingData.ts          all wedding content
   lib/                         countdown, calendar (.ics + Google), share, maps,
-                               rsvpSheet (posts replies to the Apps Script URL)
+                               rsvpSheet (posts replies to /api/rsvp)
   components/
     WeddingInvitation.tsx      composes the envelope and the page
     opening/                   OpeningEnvelope, EnvelopeFlap, WaxSeal, InvitationCard
