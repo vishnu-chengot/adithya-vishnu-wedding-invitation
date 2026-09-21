@@ -59,9 +59,30 @@ function doPost(e) {
   }
 }
 
-/** Lets you open the /exec URL in a browser to check the deployment is live. */
+/**
+ * Open the /exec URL in a browser to check the deployment.
+ * Reports which spreadsheet and which tab replies are being written to, and
+ * how many are already there — the quickest way to find rows you cannot see.
+ */
 function doGet() {
-  return reply_(true, 'RSVP endpoint is running')
+  try {
+    const book = SpreadsheetApp.getActiveSpreadsheet()
+    const sheet = sheet_()
+    const count = Math.max(sheet.getLastRow() - 1, 0)
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        ok: true,
+        message: 'RSVP endpoint is running',
+        spreadsheet: book.getName(),
+        tab: SHEET_NAME,
+        repliesSoFar: count,
+        openTab: book.getUrl() + '#gid=' + sheet.getSheetId(),
+      }),
+    ).setMimeType(ContentService.MimeType.JSON)
+  } catch (err) {
+    console.error(err)
+    return reply_(false, 'Running, but could not reach the spreadsheet')
+  }
 }
 
 function sheet_() {

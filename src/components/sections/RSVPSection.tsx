@@ -142,10 +142,17 @@ export function RSVPSection() {
               <Field id="rsvp-name" label="Your name">
                 <input
                   id="rsvp-name"
+                  // `name` and `autoComplete` together are what let the browser
+                  // offer the guest's saved name as a one-tap suggestion.
+                  name="name"
                   type="text"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   autoComplete="name"
+                  autoCapitalize="words"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
                   placeholder="Name as we should write it"
                   className="w-full border-0 border-b border-gold/40 bg-transparent pb-3 font-display text-xl text-cocoa placeholder:font-sans placeholder:text-sm placeholder:text-cocoa/35 focus:border-gold focus:outline-none focus:ring-0"
                 />
