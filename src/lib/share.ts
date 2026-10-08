@@ -65,6 +65,9 @@ export async function shareInvitation(): Promise<ShareResult> {
 }
 
 export function mapsSearchUrl(): string {
+  if ('mapsUrl' in weddingData && weddingData.mapsUrl) {
+    return weddingData.mapsUrl
+  }
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(weddingData.mapsQuery)}`
 }
 

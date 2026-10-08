@@ -25,7 +25,7 @@ export function HeroSection() {
     <section
       ref={ref}
       className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden px-6"
-      style={{ paddingTop: 'calc(var(--safe-top) + 2rem)', paddingBottom: '3rem' }}
+      style={{ paddingTop: 'calc(var(--safe-top) + 2rem)', paddingBottom: 'calc(var(--safe-bottom) + 2.5rem)' }}
     >
       <motion.div style={still ? undefined : { y: leafY }} className="pointer-events-none absolute inset-0">
         <Sprig className="absolute -left-10 top-6 h-60 w-auto opacity-[0.30] sway sm:left-2 sm:h-80 lg:h-[26rem]" />
@@ -83,17 +83,41 @@ export function HeroSection() {
         </motion.div>
 
         <motion.div
-          className="mt-14 flex flex-col items-center gap-2 sm:mt-20"
-          initial={still ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.7, duration: 1.2 }}
+          className="mt-10 flex flex-col items-center sm:mt-16"
+          initial={still ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 1.2 }}
         >
-          <motion.span
-            className="block h-14 w-px bg-gradient-to-b from-gold/75 to-transparent"
-            style={{ transformOrigin: 'top' }}
-            animate={still ? {} : { scaleY: [0.35, 1, 0.35], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-          />
+          <a
+            href="#invitation"
+            aria-label="Scroll down to invitation"
+            className="group flex flex-col items-center cursor-pointer focus:outline-none"
+            onClick={(e) => {
+              e.preventDefault()
+              const target = document.getElementById('invitation')
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' })
+              }
+            }}
+          >
+            <span className="block h-8 w-px bg-gradient-to-b from-gold/75 via-gold/40 to-transparent sm:h-10" />
+            <motion.div
+              animate={still ? {} : { y: [0, 5, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="-mt-0.5 text-gold/85 transition-colors duration-300 group-hover:text-burgundy"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+              </svg>
+            </motion.div>
+          </a>
         </motion.div>
       </motion.div>
     </section>

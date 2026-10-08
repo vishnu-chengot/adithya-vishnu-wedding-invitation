@@ -15,11 +15,13 @@ export const weddingData = {
   venue: "Bride's Residence",
   brideAddress: 'VellavayalKuni, Orkkatteri, Chattukulam',
   /**
-   * What the "View location" and "Get directions" buttons search for.
-   * Kept separate from the printed address because Google geocodes the spaced
-   * spelling more reliably — change it if the map lands in the wrong place.
+   * Direct Google Maps location link for the venue pin.
    */
-  mapsQuery: 'Vellavayal Kuni, Orkkatteri, Chattukulam, Kerala',
+  mapsUrl: 'https://maps.app.goo.gl/SZtQuxA1YeNxVfzP9?g_st=iw',
+  /**
+   * Fallback query used for directions search.
+   */
+  mapsQuery: 'Chattukulam Temple Orkkatteri, Orkkatteri, Keralam 673501',
   /** Address split for display on its own lines. */
   addressLines: ['VellavayalKuni', 'Orkkatteri', 'Chattukulam'],
 

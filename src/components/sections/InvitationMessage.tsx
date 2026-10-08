@@ -10,7 +10,7 @@ export function InvitationMessage() {
   const { brideParents, invitationMessage } = weddingData
 
   return (
-    <section className="relative w-full px-6 py-20 sm:py-32">
+    <section id="invitation" className="relative w-full px-6 py-20 sm:py-32">
       <div className="mx-auto flex max-w-xl flex-col items-center text-center">
         <Reveal variant="expand">
           <Divider className="h-6 w-56 opacity-80 sm:w-72" />
