@@ -7,5 +7,19 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": [
+      "node"
+    ],
+    "skipLibCheck": true,
+    "noEmit": true
+  }
 }

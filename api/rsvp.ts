@@ -1,4 +1,4 @@
-import { forwardRsvp, tooLarge } from './_forward.ts'
+import { forwardRsvp, tooLarge } from './_forward'
 
 export const config = { runtime: 'edge' }
 
